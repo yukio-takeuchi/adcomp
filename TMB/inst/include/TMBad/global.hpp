@@ -2545,6 +2545,15 @@ struct global {
     ad_aug(Scalar x);
     /** \brief CTOR from `ad_plain` \details Leaves `value` uninitialized. */
     ad_aug(ad_plain x);
+    /** \brief CTOR from `ad_aug`
+        \details When copying ad_aug we must have several cases in mind:
+        1. x is constant: Perform exact memberwise copy.
+        2. x is variable on the current active tape: Perform exact memberwise
+       copy.
+        3. x is a variable on some other tape: Add a 'RefOp' on current active
+       tape and let the output of the RefOp be the newly constructed ad_aug.
+    */
+    ad_aug(const ad_aug &x);
     /** \brief Force this variable to be put on the tape. \details If
         variable already is on the tape nothing happens. In particular
         the variable cannot be assumed to be the most recently

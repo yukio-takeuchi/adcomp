@@ -1888,6 +1888,17 @@ global::ad_aug::ad_aug(Scalar x) { data.value = x; }
 
 global::ad_aug::ad_aug(ad_plain x) : taped_value(x) { data.glob = get_glob(); }
 
+global::ad_aug::ad_aug(const ad_aug &x) {
+  taped_value = x.taped_value;
+  data = x.data;
+
+  if (this->constant()) return;
+
+  if (this->glob() == get_glob()) return;
+
+  this->addToTape();
+}
+
 void global::ad_aug::addToTape() const {
   if (ontape()) {
     if (data.glob != get_glob()) {
@@ -1904,6 +1915,7 @@ void global::ad_aug::addToTape() const {
           get_glob()->getOperator<RefOp>(data.glob, taped_value.index);
       this->taped_value =
           get_glob()->add_to_stack<RefOp>(pOp, std::vector<ad_plain>(0))[0];
+      this->data.glob = get_glob();
     }
     return;
   }
