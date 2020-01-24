@@ -109,6 +109,7 @@
 ##' @param seed Randomization seed (discrete case only). If \code{NULL} the RNG seed is untouched by this routine.
 ##' @param parallel Run in parallel using the \code{parallel} package?
 ##' @param trace Trace progress?
+##' @param reverse Do calculations in opposite order to improve stability (currently \code{oneStepGaussianOffMode} method only) ?
 ##' @param ... Control parameters for OSA method
 ##' @return \code{data.frame} with OSA \emph{standardized} residuals
 ##' in column \code{residual}. Depending on the method the output may
@@ -143,6 +144,7 @@ oneStepPredict <- function(obj,
                            seed = 123,
                            parallel = FALSE,
                            trace = TRUE,
+                           reverse = TRUE,
                            ...
                            ){
     if (missing(observation.name))
@@ -346,7 +348,6 @@ oneStepPredict <- function(obj,
         p <- newobj$par
         newobj$fn(p) ## Test eval
         newobj$env$random.start <- expression({last.par[random]})
-        nll0 <- newobj$fn(observation(0))
         oneStepGaussian <- function(k){
             tracefun(k)
             index <- subset[k]
@@ -358,8 +359,10 @@ oneStepPredict <- function(obj,
             }
             c(observation=obs[index], nll = f(obs[index]), grad = g(obs[index]))
         }
-        pred <- do.call("rbind", lapply(1:length(subset), oneStepGaussian))
-        pred <- as.data.frame(pred)
+        ord <- seq_along(subset)
+        if (reverse) ord <- rev(ord)
+        pred <- do.call("rbind", lapply(ord, oneStepGaussian))
+        pred <- as.data.frame(pred)[ord, ]
         ################### Convert value and gradient to residual
         ## Need Lambert W function: x = W(x) * exp( W(x) ) , x > 0
         ## Vectorized in x and tested on extreme cases W(.Machine$double.xmin)
@@ -381,6 +384,7 @@ oneStepPredict <- function(obj,
             R <- sign(grad) * Rabs
             R
         }
+        nll0 <- newobj$fn(observation(0))
         R <- getResid( diff( c(nll0, pred$nll) ), pred$grad )
         M <- pred$observation - ifelse(pred$grad != 0, R * (R / pred$grad), 0)
         pred$mean <- M
