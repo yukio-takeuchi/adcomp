@@ -109,7 +109,7 @@
 ##' @param seed Randomization seed (discrete case only). If \code{NULL} the RNG seed is untouched by this routine.
 ##' @param parallel Run in parallel using the \code{parallel} package?
 ##' @param trace Trace progress?
-##' @param reverse Do calculations in opposite order to improve stability (currently \code{oneStepGaussianOffMode} method only) ?
+##' @param reverse Do calculations in opposite order to improve stability ? (currently enabled by default for \code{oneStepGaussianOffMode} method only)
 ##' @param ... Control parameters for OSA method
 ##' @return \code{data.frame} with OSA \emph{standardized} residuals
 ##' in column \code{residual}. Depending on the method the output may
@@ -144,7 +144,7 @@ oneStepPredict <- function(obj,
                            seed = 123,
                            parallel = FALSE,
                            trace = TRUE,
-                           reverse = TRUE,
+                           reverse = (method == "oneStepGaussianOffMode"),
                            ...
                            ){
     if (missing(observation.name))
