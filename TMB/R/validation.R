@@ -301,8 +301,10 @@ oneStepPredict <- function(obj,
     ##   * nlcdf.lower
     ##   * nlcdf.upper
     applyMethod <- function(oneStepMethod){
-        pred <- do.call("rbind", lapply(1:length(subset), oneStepMethod))
-        pred <- as.data.frame(pred)
+        ord <- seq_along(subset)
+        if (reverse) ord <- rev(ord)
+        pred <- do.call("rbind", lapply(ord, oneStepMethod))
+        pred <- as.data.frame(pred)[ord, ]
         pred$Fx <- 1 / ( 1 + exp(pred$nlcdf.lower - pred$nlcdf.upper) )
         pred$px <- 1 / ( exp(-pred$nlcdf.lower + pred$nll) +
                          exp(-pred$nlcdf.upper + pred$nll) )
@@ -338,8 +340,10 @@ oneStepPredict <- function(obj,
             H <- optimHess(opt$par, f, g)
             c(observation=obs[index], mean=opt$par, sd=sqrt(1/H))
         }
-        pred <- do.call("rbind", lapply(1:length(subset), oneStepGaussian))
-        pred <- as.data.frame(pred)
+        ord <- seq_along(subset)
+        if (reverse) ord <- rev(ord)
+        pred <- do.call("rbind", lapply(ord, oneStepGaussian))
+        pred <- as.data.frame(pred)[ord, ]
         pred$residual <- (pred$observation-pred$mean)/pred$sd
     }
 
