@@ -36,30 +36,6 @@ jobs:
       script:
         - ./bin/install_and_check.sh
 
-    - stage: Run more checks
-      r: 3.1
-      install: true
-      script:
-        - ./bin/run_more_checks.sh
-
-    - stage: Run more checks
-      r: release
-      install: true
-      script:
-        - ./bin/run_more_checks.sh
-
-    - stage: Run full example suite
-      r: 3.1
-      install: true
-      script:
-        - ./bin/run_full_example_suite.sh
-
-    - stage: Run full example suite
-      r: release
-      install: true
-      script:
-        - ./bin/run_full_example_suite.sh
-
     - stage: Build and deploy documentation
       r: release
       install:
